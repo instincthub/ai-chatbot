@@ -88,10 +88,9 @@
    - `/infrastructure` - Docker and deployment configurations
    - `/scripts` - Development and utility scripts
 
-   ## License
-
-   [Specify your license here]
    ```
+
+   NB: [See my AI Propmpt](https://claude.ai/share/2c19a553-7e70-4ccf-8017-93845be32b58)
 
 ## Commit and Push Changes
 
