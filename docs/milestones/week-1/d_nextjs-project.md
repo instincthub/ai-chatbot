@@ -1,6 +1,47 @@
 # Next.js Project Scaffolding
 
-### 6.1 Initialize Next.js Project
+This phase focuses on setting up a Next.js frontend for a customer support chatbot system. The project is structured to create a modern, scalable web application with TypeScript integration.
+
+## Key Components
+
+1. **Project Structure**
+
+- Frontend application using Next.js with TypeScript
+- Organized directory structure for components, layouts, and API integration
+- Clear separation of concerns between auth, main, and widget sections
+
+2. **Technical Setup**
+
+- TypeScript configuration with proper path aliases
+- API client setup for backend communication
+- Comprehensive type definitions for data models
+- Integration with @instincthub/react-ui for UI components
+
+3. **Core Features**
+
+- Authentication system (login/register)
+- Dashboard for monitoring system metrics
+- Chat interface for conversations
+- Widget system for embedding chat on external websites
+
+4. **Architecture**
+
+- Route groups for different sections (auth, main, widget)
+- Reusable layouts for consistent UI
+- API services for backend communication
+- Widget embed script for third-party integration
+
+**Purpose**
+This phase establishes the foundation for a customer support chatbot that can:
+
+- Process and respond to user queries
+- Manage documents and conversations
+- Provide embeddable chat widgets
+- Handle user authentication and management
+
+The setup follows modern web development practices and is designed to be maintainable and scalable.
+
+### 1 Initialize Next.js Project
 
 1. Navigate to the frontend directory:
 
@@ -35,7 +76,7 @@
    mkdir -p lib/utils
    ```
 
-### 6.2 Configure TypeScript
+### 2. Configure TypeScript
 
 1. Update tsconfig.json with proper paths:
 
@@ -150,7 +191,7 @@
    }
    ```
 
-### 6.3 Create API Client
+### 3. Create API Client
 
 1. Create API client in lib/api/client.ts:
 
@@ -340,7 +381,7 @@
    };
    ```
 
-### 6.4 Create Base Layout
+### 4. Create Base Layout
 
 1. Create the root layout in app/layout.tsx:
 
@@ -430,7 +471,7 @@
    }
    ```
 
-### 6.5 Create Basic Pages
+### 5. Create Basic Pages
 
 1. Create the homepage in app/page.tsx:
 
@@ -722,7 +763,12 @@
    }
    ```
 
-### 6.6 Create Widget Embed Script
+### 6. Create Widget Embed Script
+This is an embeddable chat widget that can be added to any website, similar to popular customer support widgets like Intercom or Drift.
+
+Website owners would embed this widget by adding a simple script tag to their site, with the widget automatically handling its own initialization and display.
+
+This provides a non-intrusive way for websites to offer instant customer support through an AI-powered chatbot interface.
 
 1. Create a widget embed script in public/widget.js:
 
