@@ -43,16 +43,16 @@ The setup follows modern web development practices and is designed to be maintai
 
 ### 1 Initialize Next.js Project
 
-1. Navigate to the frontend directory:
+1. Initialize Next.js project:
+
+   ```bash
+   npx create-next-app@latest chatbot_frontend --typescript --app --eslint
+   ```
+
+2. Navigate to the frontend directory:
 
    ```bash
    cd ../chatbot_frontend
-   ```
-
-2. Initialize Next.js project:
-
-   ```bash
-   npx create-next-app@latest . --typescript --app --eslint
    ```
 
 3. Install required dependencies:
