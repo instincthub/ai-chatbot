@@ -1,4 +1,5 @@
 import "./globals.css";
+import "@instincthub/react-ui/assets/css/styles.css";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
