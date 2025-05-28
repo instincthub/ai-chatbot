@@ -52,7 +52,7 @@ The setup follows modern web development practices and is designed to be maintai
 2. Navigate to the frontend directory:
 
    ```bash
-   cd ../chatbot_frontend
+   cd chatbot_frontend
    ```
 
 3. Install required dependencies:
@@ -63,18 +63,41 @@ The setup follows modern web development practices and is designed to be maintai
 
 4. Create project structure:
    ```bash
-   mkdir -p app/api
-   mkdir -p app/(auth)
-   mkdir -p app/(main)
-   mkdir -p app/(widget)
-   mkdir -p components/ui
-   mkdir -p components/chat
-   mkdir -p components/documents
-   mkdir -p components/widget
-   mkdir -p lib/api
-   mkdir -p lib/auth
-   mkdir -p lib/utils
+   mkdir -p src/app/api
+   mkdir -p src/app/(auth)
+   mkdir -p src/app/(main)
+   mkdir -p src/app/(widget)
+   mkdir -p src/components/ui
+   mkdir -p src/components/chat
+   mkdir -p src/components/documents
+   mkdir -p src/components/widget
+   mkdir -p src/lib/api
+   mkdir -p src/lib/auth
+   mkdir -p src/lib/utils
    ```
+
+Linux
+
+```bash
+mkdir -p src/app/api src/app/(auth) src/app/(main) src/app/(widget) src/components/ui src/components/chat src/components/documents src/components/widget src/lib/api src/lib/auth src/lib/utils src/types
+```
+
+Windows
+
+```bash
+mkdir src\app\api
+mkdir src\app\auth
+mkdir src\app\main
+mkdir src\app\widget
+mkdir src\components\ui
+mkdir src\components\chat
+mkdir src\components\documents
+mkdir src\components\widget
+mkdir src\lib\api
+mkdir src\lib\auth
+mkdir src\lib\utils
+mkdir src\types
+```
 
 ### 2. Configure TypeScript
 
@@ -764,6 +787,7 @@ The setup follows modern web development practices and is designed to be maintai
    ```
 
 ### 6. Create Widget Embed Script
+
 This is an embeddable chat widget that can be added to any website, similar to popular customer support widgets like Intercom or Drift.
 
 Website owners would embed this widget by adding a simple script tag to their site, with the widget automatically handling its own initialization and display.
