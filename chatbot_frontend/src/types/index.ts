@@ -4,6 +4,11 @@ export interface User {
   name: string;
   email: string;
   avatarUrl?: string;
+  first_name: string;
+  last_name: string;
+  username: string;
+  password: string;
+  phone_number: string;
 }
 
 export interface ChatMessage {
