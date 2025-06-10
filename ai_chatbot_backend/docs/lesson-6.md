@@ -1,4 +1,4 @@
-# Lesson 6: Connect Signup to DB
+# Lesson 6: Connect Signup to DB - Create Signup Database
 
 Create a signup APIView in authuser/views.py. that accept a POST request with a username, email, first name, last name, password, and password2 fields.
 
@@ -37,3 +37,20 @@ urlpatterns = [
 from django.urls import include
 path('api/v1/authuser/', include('authuser.urls')),
 ```
+
+## Test
+
+You can now test the signup endpoint by sending a POST request to /api/v1/authuser/signup/ with the following JSON data:
+
+```json
+{
+  "username": "testuser",
+  "email": "test@example.com",
+  "first_name": "Test",
+  "last_name": "User",
+  "password": "yourpassword",
+  "password2": "yourpassword"
+}
+```
+
+The endpoint will return the user data and an access token if successful, or appropriate error messages if there are any validation issues.
