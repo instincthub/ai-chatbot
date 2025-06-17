@@ -2,6 +2,7 @@
 
 import React, { useState, FormEvent } from "react";
 import { InputText, PasswordField, SubmitButton } from "@instincthub/react-ui";
+import { API_HOST_URL, openToast } from "@instincthub/react-ui/lib";
 
 // Type definitions
 interface LoginFormData {
@@ -98,35 +99,37 @@ const SignupComponent: React.FC = ({}) => {
    * Handles form submission
    * @param e Form event object
    */
-  const handleSubmit = async (): Promise<void> => {
-    if (!validateForm(formData)) {
-      handleLoginError(errorMessage);
-      return;
-    }
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
+    e.preventDefault();
+
+    const formData = new FormData(e.currentTarget);
+
+    const url = API_HOST_URL + "authuser/signup/";
 
     setSubmitStatus(0); // Loading state
     setErrorMessage("");
 
     try {
       // Simulate API call - replace with actual authentication logic
-      const response = await fetch("/api/auth/login", {
+      const response = await fetch(url, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
+        // headers: {
+        //   "Content-Type": "multipart/form-data",
+        // },
+        body: formData,
       });
 
       const result: LoginResponse = await response.json();
 
-      if (response.ok && result.success) {
+      if (response.ok) {
         setSubmitStatus(1); // Success
-        handleLoginSuccess?.(result);
+        openToast("Signup successful");
+        e.currentTarget.reset();
 
         // Redirect if URL provided
-        if (redirectUrl) {
-          window.location.href = redirectUrl;
-        }
+        // if (redirectUrl) {
+        //   window.location.href = redirectUrl;
+        // }
       } else {
         const errorMsg = result.message || "Login failed. Please try again.";
         setErrorMessage(errorMsg);
@@ -142,7 +145,7 @@ const SignupComponent: React.FC = ({}) => {
   };
 
   return (
-    <div className="ihub-login-container">
+    <form onSubmit={handleSubmit} className="ihub-login-container">
       <div className="ihub-login-card">
         <div className="ihub-login-header">
           <h1>Signup</h1>
@@ -166,11 +169,16 @@ const SignupComponent: React.FC = ({}) => {
             <InputText id="email" name="email" label="Email" required />
             <InputText
               id="first_name"
-              name="text"
+              name="first_name"
               label="First Name"
               required
             />
-            <InputText id="last_name" name="text" label="Last Name" required />
+            <InputText
+              id="last_name"
+              name="last_name"
+              label="Last Name"
+              required
+            />
             <InputText
               id="username"
               name="username"
@@ -196,7 +204,7 @@ const SignupComponent: React.FC = ({}) => {
             <div className="ihub-login-error">{errorMessage}</div>
           )}
 
-          <div onClick={handleSubmit}>
+          <div>
             <SubmitButton label="Sign In" status={submitStatus} />
           </div>
         </div>
@@ -215,7 +223,7 @@ const SignupComponent: React.FC = ({}) => {
           </p>
         </div>
       </div>
-    </div>
+    </form>
   );
 };
 

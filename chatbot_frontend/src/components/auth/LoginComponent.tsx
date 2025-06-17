@@ -167,7 +167,6 @@ const LoginComponent: React.FC = ({}) => {
               id="password"
               name="password"
               label="Password"
-              placeholder="Enter your password"
               value={formData.password}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 handleInputChange("password", e.target.value)
