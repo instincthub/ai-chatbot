@@ -2,40 +2,41 @@
 
 import React, { useState, FormEvent } from "react";
 import { InputText, PasswordField, SubmitButton } from "@instincthub/react-ui";
-import { API_HOST_URL, openToast } from "@instincthub/react-ui/lib";
+import { useRouter } from "next/navigation";
+import { AIAuthService } from "@/lib/auth-service";
 
 // Type definitions
-interface LoginFormData {
+interface SignupFormData {
+  email: string;
   username: string;
+  firstName: string;
+  lastName: string;
   password: string;
-}
-
-interface LoginResponse {
-  success: boolean;
-  token?: string;
-  message?: string;
-  user?: {
-    id: string;
-    username: string;
-    email: string;
-  };
+  password2: string;
+  phoneNumber: string;
 }
 
 /**
- * Login component using InstinctHub React UI components
- * Handles user authentication with username and password
+ * Signup component using AI-enhanced authentication
+ * Handles user registration with advanced validation
  */
-const SignupComponent: React.FC = ({}) => {
-  const [formData, setFormData] = useState<LoginFormData>({
+const SignupComponent: React.FC = () => {
+  const [formData, setFormData] = useState<SignupFormData>({
+    email: "",
     username: "",
+    firstName: "",
+    lastName: "",
     password: "",
+    password2: "",
+    phoneNumber: "",
   });
   const [submitStatus, setSubmitStatus] = useState<number | undefined>(
     undefined
   );
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [redirectUrl, setRedirectUrl] = useState<string | null>(null);
+
+  const router = useRouter();
 
   /**
    * Handles form input changes
@@ -43,7 +44,7 @@ const SignupComponent: React.FC = ({}) => {
    * @param value The new value for the field
    */
   const handleInputChange = (
-    field: keyof LoginFormData,
+    field: keyof SignupFormData,
     value: string
   ): void => {
     setFormData((prev) => ({
@@ -58,24 +59,32 @@ const SignupComponent: React.FC = ({}) => {
     }
   };
 
-  const handleLoginSuccess = (data: LoginResponse) => {
-    console.log("Login successful:", data);
-    // Handle successful login (store token, update user state, etc.)
-  };
-
-  const handleLoginError = (error: string) => {
-    console.error("Login error:", error);
-    // Handle login errors (show toast, etc.)
-  };
-
   /**
    * Validates form data before submission
    * @param data The form data to validate
    * @returns Boolean indicating if form is valid
    */
-  const validateForm = (data: LoginFormData): boolean => {
+  const validateForm = (data: SignupFormData): boolean => {
+    if (!data.email.trim()) {
+      setErrorMessage("Email is required");
+      setSubmitStatus(400);
+      return false;
+    }
+
     if (!data.username.trim()) {
       setErrorMessage("Username is required");
+      setSubmitStatus(400);
+      return false;
+    }
+
+    if (!data.firstName.trim()) {
+      setErrorMessage("First name is required");
+      setSubmitStatus(400);
+      return false;
+    }
+
+    if (!data.lastName.trim()) {
+      setErrorMessage("Last name is required");
       setSubmitStatus(400);
       return false;
     }
@@ -86,6 +95,21 @@ const SignupComponent: React.FC = ({}) => {
       return false;
     }
 
+    if (data.password !== data.password2) {
+      setErrorMessage("Passwords do not match");
+      setSubmitStatus(400);
+      return false;
+    }
+
+    // Basic email validation
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(data.email)) {
+      setErrorMessage("Please enter a valid email address");
+      setSubmitStatus(400);
+      return false;
+    }
+
+    // Username validation
     if (data.username.length < 3) {
       setErrorMessage("Username must be at least 3 characters");
       setSubmitStatus(400);
@@ -96,51 +120,50 @@ const SignupComponent: React.FC = ({}) => {
   };
 
   /**
-   * Handles form submission
+   * Handles form submission using AI authentication service
    * @param e Form event object
    */
   const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
 
-    const formData = new FormData(e.currentTarget);
-
-    const url = API_HOST_URL + "authuser/signup/";
+    if (!validateForm(formData)) {
+      return;
+    }
 
     setSubmitStatus(0); // Loading state
     setErrorMessage("");
+    setIsLoading(true);
 
     try {
-      // Simulate API call - replace with actual authentication logic
-      const response = await fetch(url, {
-        method: "POST",
-        // headers: {
-        //   "Content-Type": "multipart/form-data",
-        // },
-        body: formData,
+      const result = await AIAuthService.registerUser({
+        email: formData.email,
+        username: formData.username,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        password: formData.password,
+        phoneNumber: formData.phoneNumber || undefined,
       });
 
-      const result: LoginResponse = await response.json();
-
-      if (response.ok) {
+      if (result.success) {
         setSubmitStatus(1); // Success
-        openToast("Signup successful");
         e.currentTarget.reset();
 
-        // Redirect if URL provided
-        // if (redirectUrl) {
-        //   window.location.href = redirectUrl;
-        // }
+        // Redirect to login page after successful registration
+        router.push(
+          "/auth/login?message=Registration successful! Please sign in."
+        );
       } else {
-        const errorMsg = result.message || "Login failed. Please try again.";
-        setErrorMessage(errorMsg);
+        setErrorMessage(
+          result.error || "Registration failed. Please try again."
+        );
         setSubmitStatus(400);
-        handleLoginError?.(errorMsg);
       }
     } catch (error) {
       const errorMsg = "Network error. Please check your connection.";
       setErrorMessage(errorMsg);
       setSubmitStatus(500);
-      handleLoginError?.(errorMsg);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -149,53 +172,66 @@ const SignupComponent: React.FC = ({}) => {
       <div className="ihub-login-card">
         <div className="ihub-login-header">
           <h1>Signup</h1>
-          <p>Input correct details to signup.</p>
+          <p>Create your account with AI-enhanced security.</p>
         </div>
-
-        {/* 
-      export interface User {
-  email: string;
-  first_name: string;
-  last_name: string;
-  username: string;
-  password: string;
-  phone_number: string;
-}
-      
-      */}
 
         <div className="ihub-login-form">
           <div className="ihub-form-fields">
-            <InputText id="email" name="email" label="Email" required />
+            <InputText
+              id="email"
+              name="email"
+              label="Email"
+              type="email"
+              value={formData.email}
+              onChange={(e) => handleInputChange("email", e.target.value)}
+              required
+            />
             <InputText
               id="first_name"
               name="first_name"
               label="First Name"
+              value={formData.firstName}
+              onChange={(e) => handleInputChange("firstName", e.target.value)}
               required
             />
             <InputText
               id="last_name"
               name="last_name"
               label="Last Name"
+              value={formData.lastName}
+              onChange={(e) => handleInputChange("lastName", e.target.value)}
               required
             />
             <InputText
               id="username"
               name="username"
               label="Username"
+              value={formData.username}
+              onChange={(e) => handleInputChange("username", e.target.value)}
               required
             />
-
+            <InputText
+              id="phone_number"
+              name="phone_number"
+              label="Phone Number (Optional)"
+              type="tel"
+              value={formData.phoneNumber}
+              onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
+            />
             <PasswordField
               id="password"
               name="password"
               label="Password"
+              value={formData.password}
+              onChange={(e) => handleInputChange("password", e.target.value)}
               required
             />
             <PasswordField
               id="password2"
               name="password2"
-              label="Retype Password"
+              label="Confirm Password"
+              value={formData.password2}
+              onChange={(e) => handleInputChange("password2", e.target.value)}
               required
             />
           </div>
@@ -205,20 +241,19 @@ const SignupComponent: React.FC = ({}) => {
           )}
 
           <div>
-            <SubmitButton label="Sign In" status={submitStatus} />
+            <SubmitButton
+              label="Create Account"
+              status={submitStatus}
+              disabled={isLoading}
+            />
           </div>
         </div>
 
         <div className="ihub-login-footer">
           <p>
-            Don't have an account?{" "}
-            <a href="/auth/signup" className="ihub-link">
-              Sign up here
-            </a>
-          </p>
-          <p>
-            <a href="/auth/forgot-password" className="ihub-link">
-              Forgot your password?
+            Already have an account?{" "}
+            <a href="/auth/login" className="ihub-link">
+              Sign in here
             </a>
           </p>
         </div>

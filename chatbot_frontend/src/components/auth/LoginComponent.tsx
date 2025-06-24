@@ -1,32 +1,23 @@
 "use client";
 
 import React, { useState, FormEvent } from "react";
-import { InputText, SubmitButton } from "@instincthub/react-ui";
+import { InputText, PasswordField, SubmitButton } from "@instincthub/react-ui";
+import { signIn, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 // Type definitions
 interface LoginFormData {
-  username: string;
+  email: string;
   password: string;
 }
 
-interface LoginResponse {
-  success: boolean;
-  token?: string;
-  message?: string;
-  user?: {
-    id: string;
-    username: string;
-    email: string;
-  };
-}
-
 /**
- * Login component using InstinctHub React UI components
- * Handles user authentication with username and password
+ * Login component using NextAuth.js authentication
+ * Handles user authentication with email and password
  */
-const LoginComponent: React.FC = ({}) => {
+const LoginComponent: React.FC = () => {
   const [formData, setFormData] = useState<LoginFormData>({
-    username: "",
+    email: "",
     password: "",
   });
   const [submitStatus, setSubmitStatus] = useState<number | undefined>(
@@ -34,7 +25,16 @@ const LoginComponent: React.FC = ({}) => {
   );
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [redirectUrl, setRedirectUrl] = useState<string | null>(null);
+
+  const { data: session } = useSession();
+  const router = useRouter();
+
+  // Redirect if already authenticated
+  React.useEffect(() => {
+    // if (session) {
+    //   router.push("/main/dashboard");
+    // }
+  }, [session, router]);
 
   /**
    * Handles form input changes
@@ -57,24 +57,14 @@ const LoginComponent: React.FC = ({}) => {
     }
   };
 
-  const handleLoginSuccess = (data: LoginResponse) => {
-    console.log("Login successful:", data);
-    // Handle successful login (store token, update user state, etc.)
-  };
-
-  const handleLoginError = (error: string) => {
-    console.error("Login error:", error);
-    // Handle login errors (show toast, etc.)
-  };
-
   /**
    * Validates form data before submission
    * @param data The form data to validate
    * @returns Boolean indicating if form is valid
    */
   const validateForm = (data: LoginFormData): boolean => {
-    if (!data.username.trim()) {
-      setErrorMessage("Username is required");
+    if (!data.email.trim()) {
+      setErrorMessage("Email is required");
       setSubmitStatus(400);
       return false;
     }
@@ -85,8 +75,10 @@ const LoginComponent: React.FC = ({}) => {
       return false;
     }
 
-    if (data.username.length < 3) {
-      setErrorMessage("Username must be at least 3 characters");
+    // Basic email validation
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(data.email)) {
+      setErrorMessage("Please enter a valid email address");
       setSubmitStatus(400);
       return false;
     }
@@ -95,84 +87,70 @@ const LoginComponent: React.FC = ({}) => {
   };
 
   /**
-   * Handles form submission
+   * Handles form submission using NextAuth.js
    * @param e Form event object
    */
-  const handleSubmit = async (): Promise<void> => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
+    e.preventDefault();
+
     if (!validateForm(formData)) {
-      handleLoginError(errorMessage);
       return;
     }
 
     setSubmitStatus(0); // Loading state
     setErrorMessage("");
+    setIsLoading(true);
 
     try {
-      // Simulate API call - replace with actual authentication logic
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
+      const result = await signIn("credentials", {
+        email: formData.email,
+        password: formData.password,
+        redirect: false,
       });
 
-      const result: LoginResponse = await response.json();
-
-      if (response.ok && result.success) {
-        setSubmitStatus(1); // Success
-        handleLoginSuccess?.(result);
-
-        // Redirect if URL provided
-        if (redirectUrl) {
-          window.location.href = redirectUrl;
-        }
-      } else {
-        const errorMsg = result.message || "Login failed. Please try again.";
-        setErrorMessage(errorMsg);
+      if (result?.error) {
+        setErrorMessage("Invalid email or password");
         setSubmitStatus(400);
-        handleLoginError?.(errorMsg);
+      } else {
+        setSubmitStatus(1); // Success
+        // NextAuth will handle the session automatically
+        router.push("/main/dashboard");
       }
     } catch (error) {
       const errorMsg = "Network error. Please check your connection.";
       setErrorMessage(errorMsg);
       setSubmitStatus(500);
-      handleLoginError?.(errorMsg);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="ihub-login-container">
+    <form onSubmit={handleSubmit} className="ihub-login-container">
       <div className="ihub-login-card">
         <div className="ihub-login-header">
-          <h1>Welcome Back</h1>
-          <p>Sign in to your InstinctHub account</p>
+          <h1>Login</h1>
+          <p>Welcome back! Please sign in to your account.</p>
         </div>
 
         <div className="ihub-login-form">
           <div className="ihub-form-fields">
             <InputText
-              id="username"
-              name="username"
-              label="Username"
-              value={formData.username}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                handleInputChange("username", e.target.value)
-              }
+              id="email"
+              name="email"
+              label="Email"
+              type="email"
+              value={formData.email}
+              onChange={(e) => handleInputChange("email", e.target.value)}
               required
-              disabled={isLoading || submitStatus === 0}
             />
-
-            <InputText
+            <PasswordField
               id="password"
               name="password"
               label="Password"
               value={formData.password}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                handleInputChange("password", e.target.value)
-              }
+              onChange={(e) => handleInputChange("password", e.target.value)}
               required
-              disabled={isLoading || submitStatus === 0}
             />
           </div>
 
@@ -180,15 +158,11 @@ const LoginComponent: React.FC = ({}) => {
             <div className="ihub-login-error">{errorMessage}</div>
           )}
 
-          <div onClick={handleSubmit}>
+          <div>
             <SubmitButton
               label="Sign In"
               status={submitStatus}
-              disabled={
-                isLoading ||
-                !formData.username.trim() ||
-                !formData.password.trim()
-              }
+              disabled={isLoading}
             />
           </div>
         </div>
@@ -207,7 +181,7 @@ const LoginComponent: React.FC = ({}) => {
           </p>
         </div>
       </div>
-    </div>
+    </form>
   );
 };
 
