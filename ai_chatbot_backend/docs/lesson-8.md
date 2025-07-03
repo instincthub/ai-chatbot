@@ -27,7 +27,7 @@ AUTH_URL_INTERNAL=http://localhost:3000
 AUTH_SECRET="zmLin21RkAPbqe8ysYFhgZOpzSRvNIIg"
 ```
 
-## InstinctHub Signup form example 
+## InstinctHub Signup form example
 
 - [SignUpFormExample](https://github.com/instincthub/instincthub-react-ui/blob/main/src/__examples__/src/components/forms/SignUpFormExample.tsx)
 
@@ -35,14 +35,22 @@ Simple request header
 
 ```ts
 const options = {
-        method: "POST",
-        headers: {},
-        redirect: "follow",
-        body: form,
-      };
+  method: "POST",
+  headers: {},
+  redirect: "follow",
+  body: form,
+};
 ```
 
 ```bash
 authuser/signup/
 ```
 
+## Prompt
+
+Refactor my signup to match with instinctHub react ui
+
+Especially, the handleSubmit should tally so it make request to the API directly.
+
+I pasted example: SignUpFormExample
+Component to refactor: SignupComponent
