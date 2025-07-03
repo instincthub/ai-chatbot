@@ -26,3 +26,23 @@ AUTH_TRUST_HOST=http://localhost:3000
 AUTH_URL_INTERNAL=http://localhost:3000
 AUTH_SECRET="zmLin21RkAPbqe8ysYFhgZOpzSRvNIIg"
 ```
+
+## InstinctHub Signup form example 
+
+- [SignUpFormExample](https://github.com/instincthub/instincthub-react-ui/blob/main/src/__examples__/src/components/forms/SignUpFormExample.tsx)
+
+Simple request header
+
+```ts
+const options = {
+        method: "POST",
+        headers: {},
+        redirect: "follow",
+        body: form,
+      };
+```
+
+```bash
+authuser/signup/
+```
+
