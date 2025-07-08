@@ -4,6 +4,7 @@ import React, { useState, FormEvent } from "react";
 import { InputText, PasswordField, SubmitButton } from "@instincthub/react-ui";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { API_HOST_URL, openToast } from "@instincthub/react-ui/lib";
 
 // Type definitions
 interface LoginFormData {
@@ -90,40 +91,65 @@ const LoginComponent: React.FC = () => {
    * Handles form submission using NextAuth.js
    * @param e Form event object
    */
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    if (!validateForm(formData)) {
-      return;
-    }
+    const form = new FormData(e.currentTarget);
 
-    setSubmitStatus(0); // Loading state
-    setErrorMessage("");
-    setIsLoading(true);
+    const options: RequestInit = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: form.get("email"),
+        password: form.get("password"),
+      }),
+    };
+
+    const url = `${API_HOST_URL}authuser/login/`;
+
+    interface LoginResponse {
+      username: string;
+      email: string;
+      first_name: string;
+      last_name: string;
+      access_token: string;
+      refresh_token?: string;
+    }
 
     try {
-      const result = await signIn("credentials", {
-        email: formData.email,
-        password: formData.password,
-        redirect: false,
-      });
+      const response = await fetch(url, options);
+      const data: LoginResponse = await response.json();
 
-      if (result?.error) {
-        setErrorMessage("Invalid email or password");
-        setSubmitStatus(400);
+      if (data?.username && data?.access_token) {
+        // Successful login
+
+        // openToast(`Welcome back, ${data.username}!`, 200);
+
+
+        // Trigger NextAuth sign-in with custom credentials
+        const result = await signIn("credentials", {
+          email: JSON.stringify(data),
+          redirect: false,
+        });
+
+        if (result?.ok) {
+          openToast(`Welcome back, ${data.username}!`, 200);
+          router.push("/dashboard");
+        } else {
+          openToast("Authentication failed", 400);
+        }
       } else {
-        setSubmitStatus(1); // Success
-        // NextAuth will handle the session automatically
-        router.push("/main/dashboard");
+        // Handle errors
+
+        openToast("Invalid credentials", 400);
       }
     } catch (error) {
-      const errorMsg = "Network error. Please check your connection.";
-      setErrorMessage(errorMsg);
-      setSubmitStatus(500);
-    } finally {
-      setIsLoading(false);
+      console.error("Login error:", error);
+      openToast("Network error. Please try again.", 500);
     }
-  };
+  }
 
   return (
     <form onSubmit={handleSubmit} className="ihub-login-container">
