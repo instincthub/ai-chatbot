@@ -121,6 +121,9 @@ ul {
 .navigation-links {
   padding: var(--spacing-md);
 }
+.navigation-links li{
+ margin: 0px;
+}
 
 .nav-link {
   display: flex;

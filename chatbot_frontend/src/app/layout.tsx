@@ -1,5 +1,5 @@
-import "./globals.css";
 import "@instincthub/react-ui/assets/css/styles.css";
+import "./globals.css";
 import type { Metadata } from "next";
 import { SessionProvider } from "../components/providers/SessionProvider";
 

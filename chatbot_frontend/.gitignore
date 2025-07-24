@@ -10,6 +10,11 @@
 !.yarn/releases
 !.yarn/versions
 
+# Python
+ai_chatbot_backend/.env
+ai_chatbot_backend/venv
+
+
 # testing
 /coverage
 
